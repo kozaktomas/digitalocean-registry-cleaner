@@ -34,8 +34,13 @@ var runCmd = &cobra.Command{
 	Short: "Run Cleaner",
 	Long:  `Command deletes tags older than [min-age-days] in the registry except the last [keep-tags] tags per repository.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		token := os.Getenv("DO_TOKEN")
+		if token == "" {
+			return fmt.Errorf("DO_TOKEN is not set")
+		}
+
 		doc := do.NewClient(
-			os.Getenv("DO_TOKEN"),
+			token,
 			protected,
 		)
 
