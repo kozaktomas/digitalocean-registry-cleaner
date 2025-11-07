@@ -32,4 +32,5 @@ go.work.sum
 # .vscode/
 
 /digitalocean-registry-cleaner
-/dorc
+/dorc# Added by goreleaser init:
+dist/
