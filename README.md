@@ -42,6 +42,17 @@ Flags:
       --repository stringArray   Repository name
 ```
 
+## Example:
+
+```bash
+$ dorc --registry=my-company-registry
+       --repository=backend
+       --repository=frontend # you can specify multiple repositories
+       --keep-tags=20 # keep 20 tags for each repository
+       --min-age-days=60 # delete only tags older than 60 days
+       --dry-run # preview what would be deleted 
+```
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
