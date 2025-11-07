@@ -42,6 +42,11 @@ Flags:
       --repository stringArray   Repository name
 ```
 
+Using Docker:
+```bash
+docker pull ghcr.io/kozaktomas/digitalocean-registry-cleaner:main
+```
+
 ## Example:
 
 ```bash
