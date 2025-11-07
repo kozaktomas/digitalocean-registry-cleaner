@@ -1,0 +1,141 @@
+package detect
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestIsTag(t *testing.T) {
+	validTags := []string{
+		"0.0.4",
+		"1.2.3",
+		"10.20.30",
+		"1.1.2-prerelease+meta",
+		"1.1.2+meta",
+		"1.1.2+meta-valid",
+		"1.0.0-alpha",
+		"1.0.0-beta",
+		"1.0.0-alpha.beta",
+		"1.0.0-alpha.beta.1",
+		"1.0.0-alpha.1",
+		"1.0.0-alpha0.valid",
+		"1.0.0-alpha.0valid",
+		"1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay",
+		"1.0.0-rc.1+build.1",
+		"2.0.0-rc.1+build.123",
+		"1.2.3-beta",
+		"10.2.3-DEV-SNAPSHOT",
+		"1.2.3-SNAPSHOT-123",
+		"1.0.0",
+		"2.0.0",
+		"1.1.7",
+		"2.0.0+build.1848",
+		"2.0.1-alpha.1227",
+		"1.0.0-alpha+beta",
+		"1.2.3----RC-SNAPSHOT.12.9.1--.12+788",
+		"1.2.3----R-S.12.9.1--.12+meta",
+		"1.2.3----RC-SNAPSHOT.12.9.1--.12",
+		"1.0.0+0.build.1-rc.10000aaa-kk-0.1",
+		"99999999999999999999999.999999999999999999.99999999999999999",
+		"1.0.0-0A.is.legal",
+		"v10.20.30",
+		"2024.1",
+		"2024.06",
+		"202406.2",
+		"20240601.3",
+		"20240601.10",
+		"202406.12",
+		"2023.5",
+		"202305.7",
+		"20230501.1",
+		"20230501.15",
+		"2022.11",
+		"202211.4",
+		"20221101.2",
+		"2021.9",
+		"202109.8",
+		"20210901.6",
+		"2020.12",
+		"202012.3",
+		"20201201.9",
+		"2019.7",
+		"201907.5",
+		"20190701.11",
+		"2018.2",
+		"201802.13",
+		"20180201.14",
+		"2017.10",
+		"201710.16",
+		"20171001.17",
+		"2016.4",
+		"201604.18",
+		"20160401.01",
+		"20160401.19",
+		"20160401.19-test",
+
+		"2024.06.13",
+		"2024.6.13",
+		"24.6.1",
+		"24.6.1-beta",
+
+		"1",
+		"1.2",
+		"1.2.3",
+		"1.2.3.4",
+		"1.2.3-0123",
+		"01.1.1",
+		"1.01.1",
+		"1.1.01",
+		"2.5",
+		"1.2-SNAPSHOT",
+		"1.2-RC-SNAPSHOT",
+	}
+
+	invalidTags := []string{
+		"1.2.3-0123.0123",
+		"1.1.2+.123",
+		"alpha",
+		"alpha.beta",
+		"alpha.beta.1",
+		"alpha.1",
+		"alpha+beta",
+		"alpha_beta",
+		"alpha.",
+		"alpha..",
+		"beta",
+		"1.0.0-alpha_beta",
+		"-alpha.",
+		"1.0.0-alpha..",
+		"1.0.0-alpha..1",
+		"1.0.0-alpha...1",
+		"1.0.0-alpha....1",
+		"1.0.0-alpha.....1",
+		"1.0.0-alpha......1",
+		"1.0.0-alpha.......1",
+		"1.2.31.2.3----RC-SNAPSHOT.12.09.1--..12+788",
+		" - 1.0, .3-gamma+b7718",
+		"+justmeta",
+		"9.8.7+meta+meta",
+		"9.8.7-whatever+meta+meta",
+		"99999999999999999999999.999999999999999999.99999999999999999----RC-SNAPSHOT.12.09.1--------------------------------..12",
+		"20160401.19test",
+		"1.2.3.DEV",
+
+		"my-development-branch",
+		"my-development-branch-1",
+		"button-4",
+		"version-strategy-1",
+		"vx-1.2.3",
+		"v",
+	}
+
+	for _, tag := range validTags {
+		assert.True(t, IsTag(tag), fmt.Sprintf("%q is a valid tag", tag))
+	}
+
+	for _, tag := range invalidTags {
+		assert.False(t, IsTag(tag), fmt.Sprintf("%q is not a valid tag", tag))
+	}
+}
