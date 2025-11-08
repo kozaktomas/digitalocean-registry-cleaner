@@ -16,6 +16,7 @@ import (
 type DigitalOceanClient struct {
 	token     string
 	protected []string
+	client    *http.Client
 }
 
 type Tag struct {
@@ -38,6 +39,7 @@ func NewClient(token string, protected []string) *DigitalOceanClient {
 	return &DigitalOceanClient{
 		token:     token,
 		protected: protected,
+		client:    http.DefaultClient,
 	}
 }
 
@@ -125,7 +127,7 @@ func (c *DigitalOceanClient) listTags(registry, repository string) ([]Tag, error
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
 	req.Header.Set("User-Agent", "digitalocean-registry-cleaner")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("could not send request: %w", err)
 	}
@@ -166,7 +168,7 @@ func (c *DigitalOceanClient) deleteTag(registry, repository, tag string) error {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
 	req.Header.Set("User-Agent", "digitalocean-registry-cleaner")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("could not send request: %w", err)
 	}
