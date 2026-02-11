@@ -1,0 +1,25 @@
+DigitalOcean Registry Cleaner (dorc) has been deployed!
+
+Configuration:
+  Registry:     {{ .Values.config.registry }}
+  Repositories: {{ .Values.config.repositories | join ", " }}
+  Schedule:     {{ .Values.schedule }}
+  Keep Tags:    {{ .Values.config.keepTags }}
+  Min Age Days: {{ .Values.config.minAgeDays }}
+  Protected:    {{ .Values.config.protect | join ", " }}
+  Dry Run:      {{ .Values.config.dryRun }}
+
+{{- if .Values.config.dryRun }}
+
+WARNING: Dry run mode is enabled. No tags will actually be deleted.
+{{- end }}
+
+Commands:
+  # Check CronJob status
+  kubectl get cronjob {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+  # Manually trigger a cleanup
+  kubectl create job --from=cronjob/{{ .Release.Name }} {{ .Release.Name }}-manual -n {{ .Release.Namespace }}
+
+  # View logs
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} --tail=100
