@@ -1,0 +1,97 @@
+# Default values for dorc (DigitalOcean Registry Cleaner)
+
+# Cron schedule for cleanup job (default: daily at 2 AM)
+schedule: "0 2 * * *"
+
+image:
+  repository: ghcr.io/kozaktomas/digitalocean-registry-cleaner
+  # Overrides the image tag whose default is the chart appVersion
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+# dorc configuration
+config:
+  # DigitalOcean registry name (required)
+  registry: ""
+  # List of repository names to clean (required)
+  repositories: []
+  # Number of release tags to keep
+  keepTags: 5
+  # Minimum age in days before a tag can be deleted
+  minAgeDays: 30
+  # Protected tag names (never deleted)
+  protect:
+    - latest
+    - main
+    - master
+    - prod
+    - production
+  # Enable dry-run mode (no actual deletions)
+  dryRun: false
+
+# DigitalOcean API token configuration
+doToken:
+  # Direct token value (will be stored in a Secret)
+  value: ""
+  # Use an existing secret instead of creating one
+  # The secret must have a key named "DO_TOKEN"
+  existingSecret: ""
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+# Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# CronJob configuration
+cronjob:
+  # Number of successful job history to keep
+  successfulJobsHistoryLimit: 3
+  # Number of failed job history to keep
+  failedJobsHistoryLimit: 3
+  # Concurrency policy: Allow, Forbid, or Replace
+  concurrencyPolicy: Forbid
+  # Restart policy for the pod
+  restartPolicy: OnFailure
+  # Job backoff limit
+  backoffLimit: 3
+  # Job active deadline in seconds (optional)
+  activeDeadlineSeconds: 600
+
+# Node selector for pod scheduling
+nodeSelector: {}
+
+# Tolerations for pod scheduling
+tolerations: []
+
+# Affinity rules for pod scheduling
+affinity: {}
+
+# Additional labels to add to all resources
+commonLabels: {}
+
+# Additional annotations for the CronJob
+cronJobAnnotations: {}
+
+# Additional annotations for the Pod
+podAnnotations: {}
