@@ -39,6 +39,14 @@ var runCmd = &cobra.Command{
 			return fmt.Errorf("DO_TOKEN is not set")
 		}
 
+		if keepTags < 1 {
+			return fmt.Errorf("keep-tags must be greater than 0")
+		}
+
+		if minAgeDays < 1 {
+			return fmt.Errorf("min-age-days must be greater than 0")
+		}
+
 		doc := do.NewClient(
 			token,
 			protected,
