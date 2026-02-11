@@ -1,0 +1,28 @@
+apiVersion: v1
+entries:
+  dorc:
+  - apiVersion: v2
+    appVersion: 0.1.0-pre1
+    created: "2026-02-11T17:20:19.747135798Z"
+    description: A Helm chart for DigitalOcean Registry Cleaner - automatically cleans
+      up outdated Docker images
+    digest: 37ae57f98a2a020f33da712b92bba3add6a8382e9cb82e7d2ed505336b0f20f1
+    home: https://github.com/kozaktomas/digitalocean-registry-cleaner
+    keywords:
+    - digitalocean
+    - registry
+    - cleaner
+    - docker
+    - images
+    - cleanup
+    kubeVersion: '>=1.21.0-0'
+    maintainers:
+    - name: kozaktomas
+    name: dorc
+    sources:
+    - https://github.com/kozaktomas/digitalocean-registry-cleaner
+    type: application
+    urls:
+    - https://kozaktomas.github.io/digitalocean-registry-cleaner/dorc-0.1.0-pre1.tgz
+    version: 0.1.0-pre1
+generated: "2026-02-11T17:20:19.746271325Z"
