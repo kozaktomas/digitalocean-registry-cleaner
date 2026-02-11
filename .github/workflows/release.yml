@@ -71,20 +71,30 @@ jobs:
     runs-on: ubuntu-latest
     needs: helm
     steps:
-      - name: Checkout gh-pages
-        id: checkout
+      - name: Checkout main repo
         uses: actions/checkout@v4
         with:
-          ref: gh-pages
           fetch-depth: 0
-        continue-on-error: true
+
+      - name: Check if gh-pages exists
+        id: check-branch
+        run: |
+          if git ls-remote --exit-code --heads origin gh-pages; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout gh-pages
+        if: steps.check-branch.outputs.exists == 'true'
+        run: |
+          git checkout gh-pages
 
       - name: Initialize gh-pages if needed
-        if: steps.checkout.outcome == 'failure'
+        if: steps.check-branch.outputs.exists == 'false'
         run: |
-          git init
           git checkout --orphan gh-pages
-          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git rm -rf .
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
