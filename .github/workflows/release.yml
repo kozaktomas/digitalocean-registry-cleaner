@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   goreleaser:
@@ -30,3 +31,81 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  helm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Set version from tag
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          sed -i "s/^version:.*/version: $VERSION/" deploy/helm/dorc/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"$VERSION\"/" deploy/helm/dorc/Chart.yaml
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Package and push Helm chart
+        run: |
+          helm package deploy/helm/dorc
+          helm push dorc-*.tgz oci://ghcr.io/${{ github.repository_owner }}
+
+      - name: Upload chart artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-chart
+          path: dorc-*.tgz
+
+      - name: Upload chart to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dorc-*.tgz
+
+  helm-repo:
+    runs-on: ubuntu-latest
+    needs: helm
+    steps:
+      - name: Checkout gh-pages
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+        continue-on-error: true
+
+      - name: Initialize gh-pages if needed
+        if: steps.checkout.outcome == 'failure'
+        run: |
+          git init
+          git checkout --orphan gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Download chart artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: helm-chart
+
+      - name: Update Helm repo index
+        run: |
+          if [ -f index.yaml ]; then
+            helm repo index . --url "https://${{ github.repository_owner }}.github.io/${GITHUB_REPOSITORY#*/}" --merge index.yaml
+          else
+            helm repo index . --url "https://${{ github.repository_owner }}.github.io/${GITHUB_REPOSITORY#*/}"
+          fi
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update Helm repo for ${GITHUB_REF#refs/tags/}"
+          git push origin gh-pages
