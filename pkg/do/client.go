@@ -132,10 +132,11 @@ func (c *DigitalOceanClient) listTags(registry, repository string) ([]Tag, error
 		return nil, fmt.Errorf("could not send request: %w", err)
 	}
 
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
-	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -172,6 +173,8 @@ func (c *DigitalOceanClient) deleteTag(registry, repository, tag string) error {
 	if err != nil {
 		return fmt.Errorf("could not send request: %w", err)
 	}
+
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
