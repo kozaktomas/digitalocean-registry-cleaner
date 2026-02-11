@@ -1,3 +1,9 @@
+{{- if and (not .Values.doToken.value) (not .Values.doToken.existingSecret) }}
+{{- fail "Either doToken.value or doToken.existingSecret is required" }}
+{{- end }}
+{{- if eq (len .Values.config.repositories) 0 }}
+{{- fail "config.repositories must contain at least one repository" }}
+{{- end }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -5,6 +11,13 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- with .Values.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.cronJobAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   schedule: {{ .Values.schedule | quote }}
   concurrencyPolicy: {{ .Values.cronjob.concurrencyPolicy }}
@@ -21,6 +34,13 @@ spec:
           labels:
             app.kubernetes.io/name: {{ .Chart.Name }}
             app.kubernetes.io/instance: {{ .Release.Name }}
+            {{- with .Values.commonLabels }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
         spec:
           {{- with .Values.imagePullSecrets }}
           imagePullSecrets:

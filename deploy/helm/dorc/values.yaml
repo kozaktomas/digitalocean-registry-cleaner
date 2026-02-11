@@ -49,11 +49,12 @@ resources:
     memory: 64Mi
 
 # Pod security context
+# Note: The container image uses USER nobody (UID 65534 on Alpine)
 podSecurityContext:
   runAsNonRoot: true
-  runAsUser: 1000
-  runAsGroup: 1000
-  fsGroup: 1000
+  runAsUser: 65534
+  runAsGroup: 65534
+  fsGroup: 65534
 
 # Container security context
 securityContext:

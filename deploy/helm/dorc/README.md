@@ -139,8 +139,8 @@ resource "helm_release" "dorc" {
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `podSecurityContext.runAsNonRoot` | Run as non-root user | `true` |
-| `podSecurityContext.runAsUser` | User ID | `1000` |
-| `podSecurityContext.runAsGroup` | Group ID | `1000` |
+| `podSecurityContext.runAsUser` | User ID (matches `nobody` in container) | `65534` |
+| `podSecurityContext.runAsGroup` | Group ID | `65534` |
 | `securityContext.allowPrivilegeEscalation` | Allow privilege escalation | `false` |
 | `securityContext.readOnlyRootFilesystem` | Read-only root filesystem | `true` |
 | `securityContext.capabilities.drop` | Dropped capabilities | `["ALL"]` |
@@ -236,7 +236,13 @@ helm install dorc dorc/dorc \
 
 ## Manual Trigger
 
-To manually trigger a cleanup job:
+To manually trigger a cleanup job (replace `<release-name>` with your Helm release name):
+
+```bash
+kubectl create job --from=cronjob/<release-name> <release-name>-manual
+```
+
+For example, if you installed with `helm install dorc ...`:
 
 ```bash
 kubectl create job --from=cronjob/dorc dorc-manual
@@ -270,6 +276,14 @@ kubectl logs -l app.kubernetes.io/instance=dorc --tail=100
 
 ### Check Secret
 
+If using `doToken.existingSecret`:
+
 ```bash
-kubectl get secret dorc -o yaml
+kubectl get secret <your-existing-secret-name> -o yaml
+```
+
+If using `doToken.value` (secret is created by the chart with release name):
+
+```bash
+kubectl get secret <release-name> -o yaml
 ```
